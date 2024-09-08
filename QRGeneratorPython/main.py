@@ -4,37 +4,87 @@ Author: @FernandoFong
 Contributors: @ErickAvila
 """
 
+
 # Dependencies
 import qrcode  # Support for QR Codes
 from PIL import Image  # Support for images
 
-img_path: str = "center.png"
-img: Image = Image.open(img_path)
 
-width: int = 100
-width_percent: float = (width / float(img.size[0]))
-height: int = int((float(img.size[1]) * float(width_percent)))
-img = img.resize((width, height))
-QR_code = qrcode.QRCode(
-    version=1,
-    error_correction=qrcode.constants.ERROR_CORRECT_L,
-    box_size=10,
-    border=2,
+def open_image(img_path: str) -> Image:
+    """
+    Open an image from a given path
+    Args:
+        img_path (str): Path to the image
+    Returns:
+        Image: Image object
+    """
+    try:
+        img: Image = Image.open(img_path)
+        return img
+    except FileNotFoundError:
+        raise FileNotFoundError("File not found")
+    except Exception as e:
+        raise e
+
+
+def make_white_background(img: Image) -> Image:
+    """
+    Make the background of an image white
+    Args:
+        img (Image): Image object
+    Returns:
+        Image: Image object
+    """
+    white_bg: Image = Image.new("RGB", img.size, "white")
+    white_bg.paste(img, (0, 0), img)
+    return white_bg
+
+
+def prepare_image(img: Image) -> Image:
+    """
+    Resize an image to a given width
+    Args:
+        img (Image): Image object
+    Returns:
+        Image: Image object
+    """
+    width: int = 100
+    width_percent: float = (width / float(img.size[0]))
+    height: int = int((float(img.size[1]) * float(width_percent)))
+    img = img.resize((width, height))
+    img = make_white_background(img)
+    return img
+
+
+img: Image = open_image("center.png")
+img = prepare_image(img)
+
+QRcode = qrcode.QRCode(
+    error_correction=qrcode.constants.ERROR_CORRECT_H
 )
 
-url: str = "https://web.fciencias.unam.mx"
+# taking url or text
+url = 'https://www.geeksforgeeks.org/'
 
-QR_code.add_data(url)
+# adding URL or text to QRcode
+QRcode.add_data(url)
 
-QR_code.make(fit=True)
+# generating QR code
+QRcode.make()
 
-QR_img = QR_code.make_image(fill_color="black", back_color="white").convert("RGBA")
+# taking color name from user
+QRcolor = 'Green'
 
-position: tuple = ((QR_img.size[0] - img.size[0]) // 2, (QR_img.size[1] - img.size[1]) // 2)
-QR_img.paste(img, position)
-QR_img.save("QR_code.png")
+# adding color to QR code
+QRimg = QRcode.make_image(
+    fill_color=QRcolor, back_color="white").convert('RGB')
 
-# if __name__ == '__main__':
-#     name = input("Escriba el nombre para generar su QR Code:")
-#     img = qrcode.make("https://web.fciencias.unam.mx")
-#     img.save(f"{name}.png")
+# set size of QR code
+pos = ((QRimg.size[0] - img.size[0]) // 2,
+       (QRimg.size[1] - img.size[1]) // 2)
+QRimg.paste(img, pos)
+
+# save the QR code generated
+QRimg.save('gfg_QR.png')
+
+print('QR code generated!')
