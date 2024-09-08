@@ -9,7 +9,7 @@ Este proyecto proporciona una clase para generar códigos QR con una URL y opcio
 
 ## Dependencias
 
-Este proyecto requiere las siguientes bibliotecas de Python:
+Se recomienda crear un ambiente virtual. Son indispensables las siguientes bibliotecas de Python:
 
 - `qrcode`: Para la generación de códigos QR.
 - `PIL` (Pillow): Para operaciones con imágenes.
