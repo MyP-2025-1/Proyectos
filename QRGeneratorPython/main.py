@@ -7,7 +7,8 @@ Contributors: @ErickAvila
 
 # Dependencies
 import qrcode  # Support for QR Codes
-from PIL import Image  # Support for images
+from PIL import Image  # Support for image operations
+import sys  # Support for system operations
 
 
 def open_image(img_path: str) -> Image:
@@ -17,12 +18,13 @@ def open_image(img_path: str) -> Image:
         img_path (str): Path to the image
     Returns:
         Image: Image object
+    Raises:
+        FileNotFoundError: If the file is not found
+        Exception: If an error occurs
     """
     try:
         img: Image = Image.open(img_path)
         return img
-    except FileNotFoundError:
-        raise FileNotFoundError("File not found")
     except Exception as e:
         raise e
 
@@ -56,35 +58,52 @@ def prepare_image(img: Image) -> Image:
     return img
 
 
-img: Image = open_image("center.png")
-img = prepare_image(img)
+def generate_QR_code(url: str, img_path: str = None) -> Image:
+    """
+    Generate a QR Code with a given URL and an optional image
+    Args:
+        url (str): URL to encode
+        img_path (str): Path to the image
+    Returns:
+        Image: QR Code image
+    """
+    QR_code: qrcode = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=2,
+    )
+    QR_code.add_data(url)
+    QR_code.make(fit=True)
+    QR_img: Image = QR_code.make_image().convert("RGB")
+    if img_path:
+        img: Image = open_image(img_path)
+        img = prepare_image(img)
+        position: tuple = ((QR_img.size[0] - img.size[0]) //
+                           2, (QR_img.size[1] - img.size[1]) // 2)
+        QR_img.paste(img, position)
+    return QR_img
 
-QRcode = qrcode.QRCode(
-    error_correction=qrcode.constants.ERROR_CORRECT_H
-)
 
-# taking url or text
-url = 'https://www.geeksforgeeks.org/'
+def main():
+    """
+    Main function to run the QR Code generator from terminal
+    """
+    if len(sys.argv) < 2:
+        print("Uso: python main.py <url> [image_path] [output_name]")
+        sys.exit(1)
 
-# adding URL or text to QRcode
-QRcode.add_data(url)
+    url: str = sys.argv[1]
+    img_path: str = sys.argv[2] if len(sys.argv) > 2 else None
+    output_name: str = sys.argv[3] if len(sys.argv) > 3 else "qr_code.png"
 
-# generating QR code
-QRcode.make()
+    try:
+        qr_img: Image = generate_QR_code(url, img_path)
+        qr_img.save(output_name)  # Save the QR Code image
+        print(f"Código QR generado y guardado como '{output_name}'")
+    except Exception as e:
+        print(f"Error: {e}")
 
-# taking color name from user
-QRcolor = 'Green'
 
-# adding color to QR code
-QRimg = QRcode.make_image(
-    fill_color=QRcolor, back_color="white").convert('RGB')
-
-# set size of QR code
-pos = ((QRimg.size[0] - img.size[0]) // 2,
-       (QRimg.size[1] - img.size[1]) // 2)
-QRimg.paste(img, pos)
-
-# save the QR code generated
-QRimg.save('gfg_QR.png')
-
-print('QR code generated!')
+if __name__ == "__main__":
+    main()
