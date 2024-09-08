@@ -39,6 +39,10 @@ Ejemplo:
 python main.py "https://example.com" "path/to/image.png" "my_qr_code.png"
 ```
 
+## QR's generados con esta herramientaaa
+
+<img src="./static/QRcode.png" alt="QR" width="250" />
+
 ## Contribuciones
 
 Contribuidor: @ErickAvila
