@@ -24,18 +24,6 @@ class QRGenerator:
         self.__url = url
         self.__img_path = img_path
 
-    def __make_white_background(self, img: Image) -> Image:
-        """
-        Make the background of an image white
-        Args:
-            img (Image): Image object
-        Returns:
-            Image: Image object with a white background
-        """
-        white_bg: Image = Image.new("RGB", img.size, "white")
-        white_bg.paste(img, (0, 0), img)
-        return white_bg
-
     def __prepare_image(self, img: Image) -> Image:
         """
         Resize an image to fit in the center of a QR code
@@ -48,7 +36,6 @@ class QRGenerator:
         width_percent: float = (width / float(img.size[0]))
         height: int = int((float(img.size[1]) * float(width_percent)))
         img = img.resize((width, height))
-        img = self.__make_white_background(img)
         return img
 
     def __generate(self) -> Image:
@@ -57,7 +44,7 @@ class QRGenerator:
         Returns:
             Image: QR Code image with optional embedded image
         """
-        qr: qrcode.QRCode = qrcode.QRCode(
+        qr: qrcode = qrcode.QRCode(
             version=1,
             error_correction=qrcode.constants.ERROR_CORRECT_H,
             box_size=10,
@@ -65,7 +52,7 @@ class QRGenerator:
         )
         qr.add_data(self.__url)
         qr.make(fit=True)
-        QR_img: Image = qr.make_image().convert("RGB")
+        QR_img: Image = qr.make_image().convert("RGBA")
         if self.__img_path:
             img: Image = Image.open(self.__img_path)
             img = self.__prepare_image(img)
