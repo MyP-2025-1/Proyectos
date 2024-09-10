@@ -5,7 +5,7 @@ Contributors: @ErickAvila
 """
 
 import sys  # Support for system operations
-from QRGenerator import QRGenerator  # QR Code generator class
+from src.QRGenerator import QRGenerator  # QR Code generator class
 
 
 def main():
